@@ -1,16 +1,32 @@
 import React from "react";
-import { usePokemonContext } from "../hook/PokemonContext";
+import { usePokemonContext } from "../context/PokemonContext";
+import { ViewColumnsIcon, ListBulletIcon } from "@heroicons/react/24/solid";
+import '../index.css';
 
 const LayoutSwitcher = () => {
-  const { state, dispatch } = usePokemonContext();
+  const { layout, setLayout } = usePokemonContext();
 
   return (
-    <button
-      onClick={() => dispatch({ type: "TOGGLE_LAYOUT" })}
-      className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-    >
-      Switch to {state.layout === "grid" ? "List" : "Grid"} View
-    </button>
+    <div className="flex items-center">
+     <button
+  className={`px-3 py-1 border flex items-center gap-1 transition-colors duration-200 rounded-l-lg ${
+    layout === "grid" ? "bg-[#0C1231] text-[#97A0CC]" : "bg-[#3D4466] text-[#97A0CC]"
+  }`}
+  onClick={() => setLayout("grid")}
+>
+  <ViewColumnsIcon className="h-5 w-5" />
+</button>
+
+<button
+  className={`px-3 py-1 border flex items-center gap-1 transition-colors duration-200 rounded-r-lg ${
+    layout === "list" ? "bg-[#0C1231] text-[#97A0CC]" : "bg-[#3D4466] text-[#97A0CC]"
+  }`}
+  onClick={() => setLayout("list")}
+>
+  <ListBulletIcon className="h-5 w-5" />
+</button>
+
+    </div>
   );
 };
 

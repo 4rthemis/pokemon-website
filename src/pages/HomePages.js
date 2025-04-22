@@ -1,52 +1,34 @@
-import React, { useEffect, useState } from "react";
-import { ENDPOINTS } from "../api/endpoints";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import PokemonCard from "../components/PokemonCard";
-import LayoutSwitcher from "../components/LayoutSwitcher";
-import FilterBar from "../components/FilterBar";
+import React from "react";
+import { useSessionStorage } from "../hook/UseSessionStorage";
+import PokemonData from "../data/PokemonData";
+import PokemonCard from "../components/PokemonCardComponent";
+import LayoutSwitcher from ".././components/LayoutSwitcherComponent";
 import { usePokemonContext } from "../context/PokemonContext";
+import Navbar from "../components/Navbar";
 
-const HomePages = () => {
-  const [layout, setLayout] = useState("double");
-  const [pokemons, setPokemons] = useLocalStorage("pokemon-list", []);
-  const { filter, setFilter } = usePokemonContext();
+const Home = () => {
+  const [pokemons] = useSessionStorage("pokemon-list", PokemonData);
+  const { filter, layout } = usePokemonContext();
 
-  useEffect(() => {
-    if (pokemons.length === 0) {
-      fetch(ENDPOINTS.list)
-        .then((res) => res.json())
-        .then((data) => {
-          const formatted = data.results.map((p, idx) => ({
-            name: p.name,
-            image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-              idx + 1
-            }.png`,
-            type: "unknown",
-          }));
-          setPokemons(formatted);
-        });
-    }
-  }, []);
-
-  const filtered = pokemons.filter((p) =>
-    p.name.includes(filter.toLowerCase())
-  );
+  const filteredPokemons = Array.isArray(pokemons) ? pokemons.filter((p) =>
+    p.name.toLowerCase().includes(filter.toLowerCase())
+  ) : [];
 
   return (
     <div className="p-4">
-      <LayoutSwitcher layout={layout} setLayout={setLayout} />
-      <FilterBar value={filter} onChange={setFilter} />
+      <div className="flex justify-between items-center mb-4 flex-wrap gap-12">
+        <Navbar />
+        <LayoutSwitcher />
+      </div>
       <div
-        className={`grid gap-4 mt-4 ${
-          layout === "double" ? "grid-cols-2" : "grid-cols-1"
-        }`}
+        className={`grid ${layout === "grid" ? "grid-cols-2 md:grid-cols-3 gap-4" : "grid-cols-1 gap-4"}`}
       >
-        {filtered.map((p) => (
-          <PokemonCard key={p.name} pokemon={p} />
+        {filteredPokemons.map((pokemon) => (
+          <PokemonCard key={pokemon.id} pokemon={pokemon} />
         ))}
       </div>
     </div>
   );
 };
 
-export default HomePages;
+export default Home;

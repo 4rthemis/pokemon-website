@@ -1,17 +1,26 @@
-// hooks/useSessionStorage.js
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export const useSessionStorage = (key, initialValue) => {
-  const [value, setValue] = useState(() => {
-    const stored = sessionStorage.getItem(key);
-    return stored ? JSON.parse(stored) : initialValue;
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = sessionStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
   });
 
-  useEffect(() => {
-    if (value !== undefined && value !== null) {
-      sessionStorage.setItem(key, JSON.stringify(value));
+  const setValue = (value) => {
+    try {
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      sessionStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
     }
-  }, [key, value]);
+  };
 
-  return [value, setValue];
+  return [storedValue, setValue];
 };

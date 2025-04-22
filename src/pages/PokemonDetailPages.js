@@ -1,55 +1,42 @@
-// pages/PokemonDetailPages.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useSessionStorage } from "../hooks/useSessionStorage";
-import { ENDPOINTS } from "../api/endpoint";
+import { useSessionStorage } from "../hook/UseSessionStorage";
+import PokemonData from "../data/PokemonData";
 
-const PokemonDetailPages = () => {
+
+const PokemonDetail = () => {
   const { name } = useParams();
   const [data, setData] = useSessionStorage(`pokemon-detail-${name}`, null);
-  const [loading, setLoading] = useState(!data);
 
   useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(ENDPOINTS.detail(name));
-        const result = await res.json();
-        const formatted = {
-          name: result.name,
-          image: result.sprites.front_default,
-          height: result.height,
-          weight: result.weight,
-          types: result.types.map((t) => t.type.name).join(", "),
-        };
-        setData(formatted);
-      } catch (err) {
-        console.error("Error Mengambil Data Pokemon:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const found = PokemonData.find((p) => p.name === name);
+    if (found) {
+      setData(found);
+    }
+  }, [name, setData]);
 
-    if (!data) fetchDetail();
-  }, [name]);
-
-  if (loading || !data) return <p className="p-4">Loading...</p>;
+  if (!data) return <p className="p-4">Loading...</p>;
 
   return (
     <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold capitalize mb-4">{data.name}</h1>
+      <h1 className="text-2xl text-primaryText font-bold capitalize mb-4">{data.name}</h1>
       <img src={data.image} alt={data.name} className="w-48 mx-auto" />
-      <p>
-        <strong>Height:</strong> {data.height}
-      </p>
-      <p>
-        <strong>Weight:</strong> {data.weight}
-      </p>
-      <p>
-        <strong>Type:</strong> {data.types}
-      </p>
+      <div className="mt-4 space-y-2">
+        <p>
+          <strong>Type:</strong> {data.type}
+        </p>
+        <p>
+          <strong>Health:</strong> {data.health}/{data.maxHealth}
+        </p>
+        <p>
+          <strong>Attack:</strong> {data.attack}
+        </p>
+        <p>
+          <strong>Defense:</strong> {data.defense}
+        </p>
+      </div>
     </div>
   );
 };
 
-export default PokemonDetailPages;
+export default PokemonDetail;
